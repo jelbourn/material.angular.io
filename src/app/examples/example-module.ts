@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {MaterialModule} from '@angular/material';
-import {ButtonDemo} from '../../../assets/examples/button-demo';
-import {CheckboxDemo} from '../../../assets/examples/checkbox-demo';
+import {ButtonDemo} from './button-demo';
+import {CheckboxDemo} from './checkbox-demo';
 
 
 /**
@@ -20,7 +20,10 @@ export const EXAMPLE_COMPONENTS =
  * The list of all example components.
  * We need to put them in both `declarations` and `entryComponents` to make them work.
  */
-const EXAMPLE_LIST = Object.keys(EXAMPLE_COMPONENTS).map((key) => EXAMPLE_COMPONENTS[key]);
+export const EXAMPLE_LIST = [
+  ButtonDemo,
+  CheckboxDemo,
+];
 
 @NgModule({
   declarations: EXAMPLE_LIST,

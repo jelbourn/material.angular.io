@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Portal, ComponentPortal} from '@angular/material';
-import {EXAMPLE_COMPONENTS} from './example-module';
+import {EXAMPLE_COMPONENTS} from '../../examples/example-module';
 
 
 @Component({
@@ -18,7 +18,9 @@ export class ExampleViewer {
 
   @Input()
   set example(example: string) {
-    this._example = example;
-    this.selectedPortal = new ComponentPortal(EXAMPLE_COMPONENTS[example]);
+    if (example && EXAMPLE_COMPONENTS[example]) {
+      this._example = example;
+      this.selectedPortal = new ComponentPortal(EXAMPLE_COMPONENTS[example]);
+    }
   }
 }

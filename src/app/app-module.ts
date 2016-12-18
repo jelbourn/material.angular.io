@@ -4,15 +4,15 @@ import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common'
 import {FormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {MaterialModule} from '@angular/material';
-import {ExampleModule, ExampleViewer} from '../components/example-viewer';
 import {MaterialDocsApp} from './material-docs-app';
 import {Homepage} from './pages/homepage/homepage';
 import {NavBar} from './shared/navbar/navbar';
 import {routing} from './routes';
 import {ComponentList} from './pages/component-list/component-list';
 import {DocViewerModule} from './shared/doc-viewer/index';
-import {ExampleViewerModule} from './shared/example-viewer/index';
 import {ComponentViewer} from './pages/component-viewer/component-viewer';
+import {ExampleViewer} from './shared/example-viewer/example-viewer';
+import {ExampleModule, EXAMPLE_LIST} from './examples/example-module';
 
 
 @NgModule({
@@ -28,7 +28,6 @@ import {ComponentViewer} from './pages/component-viewer/component-viewer';
     BrowserModule,
     ExampleModule,
     DocViewerModule,
-    ExampleViewerModule,
     FormsModule,
     HttpModule,
     MaterialModule.forRoot(),
