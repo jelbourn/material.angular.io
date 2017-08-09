@@ -3,10 +3,12 @@ import {
   Component,
   ComponentFactoryResolver,
   ElementRef,
+  EventEmitter,
   Injector,
   Input,
   OnDestroy,
-  ViewContainerRef
+  Output,
+  ViewContainerRef,
 } from '@angular/core';
 import {Http} from '@angular/http';
 import {ComponentPortal, DomPortalHost} from '@angular/material';
@@ -26,6 +28,8 @@ export class DocViewer implements OnDestroy {
     this._fetchDocument(url);
   }
 
+  @Output() contentLoaded = new EventEmitter<void>();
+
   constructor(private _appRef: ApplicationRef,
               private _componentFactoryResolver: ComponentFactoryResolver,
               private _elementRef: ElementRef,
@@ -39,10 +43,10 @@ export class DocViewer implements OnDestroy {
         response => {
           // TODO(mmalerba): Trust HTML.
           if (response.ok) {
-            let docHtml = response.text();
-            this._elementRef.nativeElement.innerHTML = docHtml;
+            this._elementRef.nativeElement.innerHTML = response.text();
             this._loadComponents('material-docs-example', ExampleViewer);
             this._loadComponents('header-link', HeaderLink);
+            this.contentLoaded.next();
           } else {
             this._elementRef.nativeElement.innerText =
               `Failed to load document: ${url}. Error: ${response.status}`;
@@ -52,15 +56,6 @@ export class DocViewer implements OnDestroy {
           this._elementRef.nativeElement.innerText =
               `Failed to load document: ${url}. Error: ${error}`;
         });
-  }
-
-  releadLiveExamples() {
-    // When the example viewer is dynamically loaded inside of md-tabs, they somehow end up in
-    // the wrong place in the DOM after switching tabs. This function is a workaround to
-    // put the live examples back in the right place.
-    this._clearLiveExamples();
-    this._loadComponents('material-docs-example', ExampleViewer);
-    this._loadComponents('header-link', HeaderLink);
   }
 
   /** Instantiate a ExampleViewer for each example. */

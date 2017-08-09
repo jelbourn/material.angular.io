@@ -2,7 +2,7 @@ import {
   Component, Input, AfterViewInit, Inject, ElementRef, OnInit
 } from '@angular/core';
 import {DOCUMENT} from '@angular/platform-browser';
-import {Router, ActivatedRoute, Event, NavigationEnd} from '@angular/router';
+import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
@@ -52,8 +52,7 @@ export class TableOfContents implements OnInit, AfterViewInit {
   private _scrollContainer: any;
   private _scrollSubscription: Subscription;
   private _routeSubscription: Subscription;
-  private _fragmentObserver: MutationObserver;
-  private _headerObserver: MutationObserver;
+  private _urlFragment: string = '';
 
   private get scrollOffset(): number {
     const {top} = this._element.nativeElement.getBoundingClientRect();
@@ -69,7 +68,7 @@ export class TableOfContents implements OnInit, AfterViewInit {
               private _element: ElementRef,
               @Inject(DOCUMENT) private _document: any) {
 
-    this._routeSubscription = this._router.events.subscribe((event: Event) => {
+    this._routeSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         const rootUrl = _router.url.split('#')[0];
         if (rootUrl !== this._rootUrl) {
@@ -93,73 +92,41 @@ export class TableOfContents implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this._route.fragment.subscribe(fragment => {
-      // ensure we don't create memory leaks
-      if (this._fragmentObserver) {
-        this._fragmentObserver.disconnect();
-      }
-
-      // create a observer to ensure the element is loaded
-      // into view before trying to query and scroll to it
-      this._fragmentObserver = new MutationObserver(() => {
-        const target = document.getElementById(fragment);
-        if (target) {
-          target.scrollIntoView();
-          this._fragmentObserver.disconnect();
-          this._fragmentObserver = null;
-        }
-      });
-
-      this._fragmentObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
+      this._urlFragment = fragment;
+      this.updateScrollPosition();
     });
   }
 
   ngOnDestroy(): void {
     this._routeSubscription.unsubscribe();
     this._scrollSubscription.unsubscribe();
+  }
 
-    if (this._fragmentObserver) {
-      this._fragmentObserver.disconnect();
+  updateScrollPosition() {
+    if (!this.links.length) {
+      this.createLinks();
     }
 
-    if (this._headerObserver) {
-      this._headerObserver.disconnect();
+    const target = document.getElementById(this._urlFragment);
+    if (target) {
+      target.scrollIntoView();
     }
   }
 
   createLinks(): void {
-    // ensure we don't create memory links
-    if (this._headerObserver) {
-      this._headerObserver.disconnect();
-    }
-
-    // observe body content changes until the headers
-    // are painted. this is required because the page can load async
-    this._headerObserver = new MutationObserver(() => {
-      const headers = this._document.querySelectorAll(this.headerSelectors);
-      if (headers.length) {
-        for (const header of headers) {
-          const {top} = header.getBoundingClientRect();
-          this.links.push({
-            name: header.innerText,
-            type: header.tagName.toLowerCase(),
-            top: top,
-            id: header.id,
-            active: false
-          });
-        }
-
-        this._headerObserver.disconnect();
-        this._headerObserver = null;
+    const headers = this._document.querySelectorAll(this.headerSelectors);
+    if (headers.length) {
+      for (const header of headers) {
+        const {top} = header.getBoundingClientRect();
+        this.links.push({
+          name: header.innerText,
+          type: header.tagName.toLowerCase(),
+          top: top,
+          id: header.id,
+          active: false
+        });
       }
-    });
-
-    this._headerObserver.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+    }
   }
 
   onScroll(): void {

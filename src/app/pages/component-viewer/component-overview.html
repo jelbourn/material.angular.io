@@ -1,7 +1,7 @@
 <doc-viewer
+    (contentLoaded)="toc.updateScrollPosition()"
     documentUrl="/assets/documents/overview/{{componentViewer.componentDocItem.id}}.html"
     class="docs-component-view-text-content docs-component-overview">
 </doc-viewer>
-<table-of-contents
-  container=".mat-sidenav-content">
-</table-of-contents>
+
+<table-of-contents #toc container=".mat-sidenav-content"></table-of-contents>
